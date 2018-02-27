@@ -29,9 +29,9 @@ end
 def update_dialog_options(service)
   $evm.root.attributes.each do |k,v|
     next unless k =~ /^dialog_.*/
-    origional_value = service.get_dialog_option(k)
-    if origional_value = v
-      $evm.log(:info, "Updating Service <#{service.name}> Option <#{k}>: #{origional_value} to #{v}")
+    original_value = service.get_dialog_option(k)
+    if original_value = v
+      $evm.log(:info, "Updating Service <#{service.name}> Option <#{k}>: #{original_value} to #{v}")
       service.set_dialog_option(k, v)
     end
   end
