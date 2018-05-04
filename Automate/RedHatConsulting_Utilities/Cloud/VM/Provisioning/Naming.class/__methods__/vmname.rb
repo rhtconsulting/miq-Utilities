@@ -18,7 +18,7 @@ module Utilities
               
               def initialize(handle = $evm)
                 @handle = handle
-                @DEBUG  = false
+                @DEBUG  = true
               end
 
               def main

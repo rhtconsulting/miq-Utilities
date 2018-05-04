@@ -1,10 +1,7 @@
-# Determine the valid cloud flavors for a specific selected destination provider for the given number of CPUs and memory.
+# Determine the valid ssh keys that can be associated with the provisioned VM(s)
 #
 # @param dialog_templates           String YAML list of selected destination templates including destination provider specified by :provider element
 # @param destination_provider_index Int    Index in the destination templates list for the provider this dialog is for
-# @param dialog_number_of_sockets   Int    Number of sockets
-# @param dialog_cores_per_socket    Int    Number of cores per socket
-# @dialog_dialog_vm_memory          Int    Amount of memmory in GB
 #
 @DEBUG = false
 
@@ -124,37 +121,14 @@ begin
   destination_cloud_provider_enabled &= destination_provider.type.include?('::Cloud')
   return_dialog_element(false, selectable_flavors) if !destination_cloud_provider_enabled
   
-  # determine and validate user specified cpu count
-  number_of_sockets = get_param(:dialog_option_0_number_of_sockets) || get_param(:dialog_number_of_sockets)
-  cores_per_socket  = get_param(:dialog_option_0_cores_per_socket)  || get_param(:dialog_cores_per_socket)
-  if number_of_sockets.nil? && cores_per_socket.nil?
-    return_dialog_element(true, { nil => "ERROR: Could not determine <number of sockets or cores per socket>."})
-  end
-  number_of_sockets ||= 1
-  cores_per_socket  ||= 1
-  number_of_sockets = number_of_sockets.to_i
-  cores_per_socket  = cores_per_socket.to_i
-  $evm.log(:info, "number_of_sockets => #{number_of_sockets}")
-  $evm.log(:info, "cores_per_socket  => #{cores_per_socket}")
-  
-  # determine and validate user specified memory
-  memory_mb = get_param(:dialog_option_0_vm_memory) || get_param(:dialog_vm_memory)
-  $evm.log(:info, "memory_mb => #{memory_mb}")
-  return_dialog_element(true, { nil => "ERROR: Could not determine <memmory in MB>."}) if memory_mb.nil?
-  memory_mb = memory_mb.to_i
-  
-  # find matching flavors
-  valid_flavors = destination_provider.flavors.select { |flavor| flavor.cpus                   == number_of_sockets}
-                                              .select { |flavor| flavor.cpu_cores              == cores_per_socket }
-                                              .select { |flavor| (flavor.memory / 1024 / 1024) == memory_mb }
-  $evm.log(:info, "selectable_flavors => #{selectable_flavors}") if @DEBUG
+  # get the key pairs
+  ssh_keys = Hash[ *destination_provider.key_pairs.collect { |key_pair| [key_pair.id, "#{key_pair.name} (#{destination_provider_name})"] }.flatten ]
   
   # error if no selecteable flavors
-  if valid_flavors.empty?
-    return_dialog_element(true, { nil => "ERROR: Could not find any Flavors for Cloud Provider <#{destination_provider_name}> " +
-                                         "that match the selected number of sockets <#{number_of_sockets}>, " +
-                                         "cores per socket <#{cores_per_socket}>, and Memory <#{memory_mb} (MB)>."})
+  if ssh_keys.empty?
+    return_dialog_element(true, { nil => "ERROR: Could not find any SSH Keys for Cloud Provider <#{destination_provider_name}>."})
   end
-  selectable_flavors = Hash[ *valid_flavors.collect { |flavor| [flavor['id'], "#{flavor['Description']} (#{destination_provider_name})"] }.flatten ]
-  return_dialog_element(destination_cloud_provider_enabled, selectable_flavors)
+  
+  # return the dialog elemnt with the SSH keys
+  return_dialog_element(destination_cloud_provider_enabled, ssh_keys)
 end
