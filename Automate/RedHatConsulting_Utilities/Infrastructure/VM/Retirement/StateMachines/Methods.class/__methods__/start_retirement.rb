@@ -22,7 +22,7 @@ if vm.retiring?
   exit MIQ_ABORT
 end
 
-# if a previous retirment failed, reset the statue so future retirment has a chance
+# if a previous retirement failed, reset the state so future retirement has a chance
 if vm.retirement_state == 'error'
   vm.retirement_state = nil
 end
