@@ -21,7 +21,7 @@ service.service_resources.each do |sr|
     $evm.log('info', "resource: #{sr.resource.name} is already retired.")
   elsif sr.resrouce.retirement_state == 'error'
     result = 'error'
-    $evm.log(:error, "resource: #{sr.resource.name} had error retiroring.")
+    $evm.log(:error, "resource: #{sr.resource.name} had error retiring.")
   else
     result = 'retry'
     $evm.log('info', "resource: #{sr.resource.name} is not retired, setting retry.")
