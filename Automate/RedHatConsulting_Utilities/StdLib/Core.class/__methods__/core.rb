@@ -11,7 +11,7 @@ module RedHatConsulting_Utilities
 
       def log(level, msg, update_message = false)
         @handle.log(level, "#{msg}")
-        @handle.task.message = msg if @task && (update_message || level == 'error')
+        @task.message = msg if @task && (update_message || level == 'error')
       end
 
       def dump_thing(thing)
