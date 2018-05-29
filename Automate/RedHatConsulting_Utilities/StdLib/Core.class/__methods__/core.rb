@@ -47,7 +47,7 @@ module RedHatConsulting_Utilities
       ##
       # Builds the RBAC array for further checking
       def get_current_group_rbac_array
-        raise 'get_current_group_rbac_array requires @user to be set' if @user.nil
+        raise 'get_current_group_rbac_array requires @user to be set' if @user.nil?
         @rbac_array = []
 
         unless @user.current_group.filters.blank?
