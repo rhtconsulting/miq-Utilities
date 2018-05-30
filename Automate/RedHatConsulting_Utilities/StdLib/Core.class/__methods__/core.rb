@@ -27,6 +27,14 @@ module RedHatConsulting_Utilities
         log(:info, "")
       end
 
+      def set_complex_state_var(name, value)
+        @handle.set_state_var(name.to_sym, JSON.generate(value))
+      end
+
+      def get_complex_state_var(name)
+        JSON.parse(@handle.get_state_var(name.to_sym))
+      end
+
       def get_provider(provider_id = nil)
         unless provider_id.nil?
           $evm.root.attributes.detect { |k, v| provider_id = v if k.end_with?('provider_id') } rescue nil
@@ -53,7 +61,7 @@ module RedHatConsulting_Utilities
         unless @user.current_group.filters.blank?
           @user.current_group.filters['managed'].flatten.each do |filter|
             next unless /(?<category>\w*)\/(?<tag>\w*)$/i =~ filter
-            @rbac_array << {category => tag}
+            @rbac_array << { category => tag }
           end
         end
         log(:info, "@user: #{@user.userid} RBAC filters: #{@rbac_array}") if @debug
@@ -85,7 +93,7 @@ module RedHatConsulting_Utilities
           log(:info, "\trh: [#{rbac_hash}]")
           rbac_hash.each do |rbac_category, rbac_tags|
             log(:info, "\t\tc: [#{rbac_category}], t: [#{rbac_tags}]")
-            Array.wrap(rbac_tags).each {|rbac_tag_entry| return false unless obj.tagged_with?(rbac_category, rbac_tag_entry)}
+            Array.wrap(rbac_tags).each { |rbac_tag_entry| return false unless obj.tagged_with?(rbac_category, rbac_tag_entry) }
           end
           true
         end
