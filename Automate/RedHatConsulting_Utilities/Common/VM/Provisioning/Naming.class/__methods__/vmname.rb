@@ -109,7 +109,7 @@ module RedHatConsulting_Utilities
               #
               # @return VM provisining configuration
               def get_vm_provisioning_config()
-                provisioning_config = $evm.instantiate(VM_PROVISIONING_CONFIG_URI)
+                provisioning_config = @handle.instantiate(VM_PROVISIONING_CONFIG_URI)
                 error("VM Provisioning Configuration not found") if provisioning_config.nil?
   
                 return provisioning_config
