@@ -21,10 +21,10 @@ module RedHatConsulting_Utilities
       end
 
       def dump_root()
-        log(:info, "Begin @handle.root.attributes")
+        log(:info, 'Begin @handle.root.attributes')
         dump_thing(@handle.root)
-        log(:info, "End @handle.root.attributes")
-        log(:info, "")
+        log(:info, 'End @handle.root.attributes')
+        log(:info, '')
       end
 
       def set_complex_state_var(name, value)
@@ -33,23 +33,6 @@ module RedHatConsulting_Utilities
 
       def get_complex_state_var(name)
         JSON.parse(@handle.get_state_var(name.to_sym))
-      end
-
-      def get_provider(provider_id = nil)
-        unless provider_id.nil?
-          $evm.root.attributes.detect { |k, v| provider_id = v if k.end_with?('provider_id') } rescue nil
-        end
-        provider = $evm.vmdb(:ManageIQ_Providers_Amazon_CloudManager).find_by_id(provider_id)
-        log(:info, "Found provider: #{provider.name} via provider_id: #{provider.id}") if provider
-
-        # set to true to default to the fist amazon provider
-        use_default = true
-        unless provider
-          # default the provider to first openstack provider
-          provider = $evm.vmdb(:ManageIQ_Providers_Amazon_CloudManager).first if use_default
-          log(:info, "Found amazon: #{provider.name} via default method") if provider && use_default
-        end
-        provider ? (return provider) : (return nil)
       end
 
       ##
