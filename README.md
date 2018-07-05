@@ -91,7 +91,7 @@ conceptual background.
 5. Select Branch/Tag to synchronize with
 6. Submit
 
-# UnitTesting
+# Unit Testing
 To run the test suite, you first require a functional ManageIQ
 development environment, specifically, able to run the test suite of
 https://github.com/ManageIQ/manageiq-content/ . Link in this project

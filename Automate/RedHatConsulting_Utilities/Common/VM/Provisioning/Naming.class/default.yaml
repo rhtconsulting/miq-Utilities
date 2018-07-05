@@ -9,4 +9,4 @@ object:
     description: 
   fields:
   - meth1:
-      value: /Common/VM/Provisioning/Naming/vmname"
+      value: vmname
