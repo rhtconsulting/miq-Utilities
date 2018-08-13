@@ -133,5 +133,5 @@ module RedHatConsulting_Utilities
 end
 
 if __FILE__ == $PROGRAM_NAME
-  RedHatConsulting_Utilities::Automate::System::CommonMethods::TaggingMethods::AddTagToLans.new.name
+  RedHatConsulting_Utilities::Automate::System::CommonMethods::TaggingMethods::AddTagToLans.new.main
 end
