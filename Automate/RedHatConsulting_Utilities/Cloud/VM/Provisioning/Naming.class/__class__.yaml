@@ -5,7 +5,7 @@ object:
   attributes:
     description: VM Naming Profiles
     display_name:
-    name: Naming XX
+    name: Naming
     type:
     inherits:
     visibility:
