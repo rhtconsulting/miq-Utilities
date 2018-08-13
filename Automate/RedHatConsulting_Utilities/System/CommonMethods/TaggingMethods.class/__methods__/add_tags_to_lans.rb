@@ -7,12 +7,6 @@
 #
 @DEBUG = false
 
-def dump_object(object_string, object)
-  @handle.log("info", "Listing #{object_string} Attributes:")
-  object.attributes.sort.each { |k, v| @handle.log("info", "\t#{k}: #{v}") }
-  @handle.log("info", "===========================================")
-end
-
 module RedHatConsulting_Utilities
   module Automate
     module System
