@@ -8,6 +8,6 @@ object:
     inherits: 
     description: 
   fields:
-    - vnmame:
-      value: "/Common/VM/Provisioning/Naming/vmname_with_domain_name"
+    -vnmame:
+      value: 
 
