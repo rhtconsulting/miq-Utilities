@@ -123,5 +123,5 @@ module RedHatConsulting_Utilities
 end
 
 if __FILE__ == $PROGRAM_NAME
-  RedHatConsulting_Utilities::Automate::Common::VM::Provisioning::Naming::VmName.new.main
+  RedHatConsulting_Utilities::Automate::Common::VM::Provisioning::Naming::VmName.new.name
 end
