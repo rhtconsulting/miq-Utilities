@@ -72,7 +72,7 @@ object:
       max_retries: 
       max_time: 
   - field:
-      aetype: method
+      aetype: state
       name: meth1
       display_name: 
       datatype: string
