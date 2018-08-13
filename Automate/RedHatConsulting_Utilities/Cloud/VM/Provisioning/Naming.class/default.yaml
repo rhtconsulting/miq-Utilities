@@ -8,4 +8,6 @@ object:
     inherits: 
     description: 
   fields:
+    -vnmame:
+      value: 
 
