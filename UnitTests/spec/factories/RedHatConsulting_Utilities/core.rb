@@ -6,7 +6,6 @@ module RedHatConsulting_Utilities
   end
 end
 
-
 shared_examples_for "Core StdLib" do
   # dump_root = instance_double("dump_root")
   before { allow_any_instance_of(described_class).to receive(:dump_root) {

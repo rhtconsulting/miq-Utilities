@@ -4,7 +4,7 @@ describe RedHatConsulting_Utilities::Automate::Common::VM::Provisioning::Naming:
 
   $config = { 'vmware_folder' => '/foo', 'vm_name_suffix_counter_length' => 3 }
 
-  let(:template) { FactoryGirl.create(:template) }
+  # let(:template) { FactoryGirl.create(:template) }
 
   let(:flavor)        { FactoryGirl.create(:flavor, :name => 'flavor1', :cloud_subnet_required => true) }
   let(:ems)           { FactoryGirl.create(:ems_amazon_with_authentication) }
@@ -25,9 +25,9 @@ describe RedHatConsulting_Utilities::Automate::Common::VM::Provisioning::Naming:
   let(:tag) { FactoryGirl.create(:tag, :name => "/managed/environment") }
   let(:tag2) { FactoryGirl.create(:tag, :name => "/managed/environment/production") }
 
-  context "#main" do
+  context "when naming a vm" do
     before do
-      allow(provision).to receive(:get_source).and_return(template)
+      allow(provision).to receive(:get_source).and_return(vm_template)
       allow(service).to receive(:instantiate).and_return($config)
     end
 

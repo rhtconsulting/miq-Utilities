@@ -27,6 +27,22 @@ module RedHatConsulting_Utilities
         log(:info, '')
       end
 
+      def dump_current
+        log("info", "Listing Current Object Attributes:")
+        @handle.current.attributes.sort.each { |k, v| log("info", "\t#{k}: #{v}") }
+        log("info", "===========================================")
+      end
+
+
+      # @param msg Message to error with
+      def error(msg)
+        @handle.log(:error, msg)
+        @handle.root['ae_result'] = 'error'
+        @handle.root['ae_reason'] = msg.to_s
+        exit MIQ_STOP
+      end
+
+
       def set_complex_state_var(name, value)
         @handle.set_state_var(name.to_sym, JSON.generate(value))
       end
