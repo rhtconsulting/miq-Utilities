@@ -35,6 +35,18 @@ def dump_root
   $evm.log("info", "===========================================") 
 end
 
+# Logs a given message and skips to a given state.
+#
+# @param message    String message to log before skipping to given next state
+# @param next_state String name of next state to skip to
+def skip_to_state(message, next_state)
+  # Set attributes to skip to specified next state
+  $evm.log(:info, "#{message}. Skip to State <#{next_state}>")
+  $evm.root['ae_result']     = 'skip'
+  $evm.root['ae_next_state'] = next_state
+  exit MIQ_OK
+end
+
 # Function for getting the current VM and associated options based on the vmdb_object_type.
 #
 # Supported vmdb_object_types
@@ -179,9 +191,11 @@ begin
   $evm.log(:info, "network_configuration => #{network_configuration}") if @DEBUG
   $evm.log(:info, "network_address_space => #{network_address_space}") if @DEBUG
 
-  # get other required options
-  destination_ip              = options[:destination_ip_address] || options[:dialog_destination_ip_address] || get_param(:destination_ip_address)
-  error("One of <destination_ip, dialog_destination_ip_address> must be provided.") if destination_ip.blank?
+  # get destination IP address
+  #
+  # NOTE: if not provided then just ignore and skip the configuring of the VM network and IP address
+  destination_ip = options[:destination_ip_address] || options[:dialog_destination_ip_address] || get_param(:destination_ip_address)
+  skip_to_state("One of <destination_ip_address, dialog_destination_ip_address> must be provided. Ignoring & Skipping.", "Finish") if destination_ip.blank?
 
   # determine network gateway
   destination_network_gateway = options[:destination_network_gateway] || options[:dialog_destination_network_gateway] || get_param(:destination_network_gateway)
@@ -217,6 +231,18 @@ begin
   end
   
   # set required job parameters
-  job_parameters.each { |k,v| $evm.object[k.to_s] = v; $evm.root[k.to_s] = v }
+  miq_provision = $evm.root['miq_provision']
+  job_parameters.each do |k,v|
+    $evm.object[k.to_s] = v
+    $evm.root[k.to_s]   = v
+    miq_provision.set_option(k.to_s,v) if miq_provision
+  end
+  job_parameters.each_with_index do |value, index|
+    key = value[0].to_s.match(/dialog_param_(.*)/)[1]
+    $evm.object["param#{index+1}"] = "#{key}=#{value[1]}"
+  end
+  
   $evm.log(:info, "Set Ansible Tower Job Parameters: #{job_parameters}")
+  dump_root()    if @DEBUG
+  dump_current() if @DEBUG
 end
