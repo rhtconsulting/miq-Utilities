@@ -9,4 +9,24 @@ object:
     description: 
   fields:
   - meth1:
-      value: "/Common/VM/Provisioning/Naming/vmname"
+      value: "/Common/VM/Provisioning/Naming/vmname_with_domain_name"
+  - field:
+      aetype: state
+      name: vnmame
+      display_name:
+      datatype: string
+      priority: 1
+      owner:
+      default_value:
+      substitute: true
+      message: create
+      visibility:
+      collect:
+      scope:
+      description:
+      condition:
+      on_entry:
+      on_exit:
+      on_error:
+      max_retries: '100'
+      max_time:
