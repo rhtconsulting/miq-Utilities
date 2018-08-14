@@ -21,10 +21,18 @@ module RedHatConsulting_Utilities
       end
 
       def dump_root()
+
         log(:info, "Begin @handle.root.attributes")
         dump_thing(@handle.root)
         log(:info, "End @handle.root.attributes")
         log(:info, "")
+      end
+
+      def error(msg)
+        @handle.log(:error, msg)
+        @handle.root['ae_result'] = 'error'
+        @handle.root['ae_reason'] = msg.to_s
+        exit MIQ_STOP
       end
 
       def get_provider(provider_id = nil)
@@ -43,6 +51,16 @@ module RedHatConsulting_Utilities
         end
         provider ? (return provider) : (return nil)
       end
+
+
+      def set_complex_state_var(name, value)
+        @handle.set_state_var(name.to_sym, JSON.generate(value))
+      end
+
+      def get_complex_state_var(name)
+        JSON.parse(@handle.get_state_var(name.to_sym))
+      end
+
 
     end
   end
