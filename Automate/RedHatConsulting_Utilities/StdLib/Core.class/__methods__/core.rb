@@ -10,8 +10,20 @@ module RedHatConsulting_Utilities
       end
 
       def log(level, msg, update_message = false)
-        @handle.log(level, "#{msg}")
-        @handle.task.message = msg if @task && (update_message || level == 'error')
+        @handle.log(level, msg.to_s)
+
+        # quick return if we aren't updating GUI messages
+        return if update_message || level == 'error'
+
+        task = nil
+
+        task = @task unless @task.nil?
+        task = @handle.task if task.nil? && !@handle.task.nil?
+        if task.nil?
+          @handle.log(:debug, 'Unable to find task. Ignoring message update')
+        else
+          task.message = msg
+        end
       end
 
       def dump_thing(thing)
