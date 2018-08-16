@@ -55,11 +55,27 @@ module RedHatConsulting_Utilities
           module Placement
             class VmWareDrsClusterBestFitWithScope
               include RedHatConsulting_Utilities::StdLib::Core
+
+              STORAGE_MAX_VMS = 0
+              STORAGE_MAX_PCT_USED = 100
+
+              #############################
+              # Set host sort order here
+              # options: :active_provioning_memory, :active_provioning_cpu, :current_memory_usage,
+              #          :current_memory_headroom, :current_cpu_usage, :random
+              #############################
+              HOST_SORT_ORDER = [:active_provioning_memory, :current_memory_headroom, :random]
+
+              #############################
+              # Set storage sort order here
+              # options: :active_provisioning_vms, :free_space, :free_space_percentage, :random
+              #############################
+              STORAGE_SORT_ORDER = [:active_provisioning_vms, :random]
+
               def initialize(handle = @handle)
                 @handle = handle
                 @DEBUG = true
               end
-
 
               def main
                 # Get variables
@@ -82,22 +98,16 @@ module RedHatConsulting_Utilities
                 #############################
                 # STORAGE LIMITATIONS
                 #############################
-                STORAGE_MAX_VMS = 0
+
                 storage_max_vms = $evm.object['storage_max_vms']
                 storage_max_vms = storage_max_vms.strip.to_i if storage_max_vms.kind_of?(String) && !storage_max_vms.strip.empty?
                 storage_max_vms = STORAGE_MAX_VMS unless storage_max_vms.kind_of?(Numeric)
-                STORAGE_MAX_PCT_USED = 100
+
                 storage_max_pct_used = $evm.object['storage_max_pct_used']
                 storage_max_pct_used = storage_max_pct_used.strip.to_i if storage_max_pct_used.kind_of?(String) && !storage_max_pct_used.strip.empty?
                 storage_max_pct_used = STORAGE_MAX_PCT_USED unless storage_max_pct_used.kind_of?(Numeric)
                 $evm.log("info", "storage_max_vms:<#{storage_max_vms}> storage_max_pct_used:<#{storage_max_pct_used}>")
 
-                #############################
-                # Set host sort order here
-                # options: :active_provioning_memory, :active_provioning_cpu, :current_memory_usage,
-                #          :current_memory_headroom, :current_cpu_usage, :random
-                #############################
-                HOST_SORT_ORDER = [:active_provioning_memory, :current_memory_headroom, :random]
 
                 #############################
                 # Find a DRS-enabled cluster
@@ -171,6 +181,9 @@ module RedHatConsulting_Utilities
 
                   sort_data.sort! { |a, b| a[0] <=> b[0] }
                   hosts = sort_data.collect { |sd| sd.pop }
+                  if hosts.length.zero?
+                    $evm.log(:info, "Found 0 hosts. Did you tag any?")
+                  end
                 else
                   $evm.log(:info, "Select DRS cluster")
 
@@ -188,14 +201,8 @@ module RedHatConsulting_Utilities
                     "Cluster hosts (powered on): <#{powered_on_hosts.collect { |host| host.name } }>")
                   hosts = [powered_on_hosts.sample]
                 end
-                $evm.log("info", "Selected Cluster: <#{cluster.name}>")
+                $evm.log("info", "Selected Cluster: <#{cluster.name}>") unless cluster.nil?
                 $evm.log("info", "Selected Hosts: <#{hosts.collect { |host| host.name } }>")
-
-                #############################
-                # Set storage sort order here
-                # options: :active_provisioning_vms, :free_space, :free_space_percentage, :random
-                #############################
-                STORAGE_SORT_ORDER = [:active_provisioning_vms, :random]
 
                 host = storage = nil
                 min_registered_vms = nil
@@ -364,5 +371,5 @@ module RedHatConsulting_Utilities
 end
 
 if __FILE__ == $PROGRAM_NAME
-  RedHatConsulting_Utilities::Automate::Infrastructure::VM::Provisioning::Placement::VmWareDrsClusterBestFitWithScop.new.main
+  RedHatConsulting_Utilities::Automate::Infrastructure::VM::Provisioning::Placement::VmWareDrsClusterBestFitWithScope.new.main
 end
