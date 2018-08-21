@@ -3,13 +3,11 @@ object_type: method
 version: 1.0
 object:
   attributes:
-    name: add_tags_to_lans
-    display_name: 
+    name: Email
+    display_name: Email
     description: 
     scope: instance
     language: ruby
     location: inline
-    embedded_methods:
-    - "/StdLib/Core/Core"
     options: {}
   inputs: []

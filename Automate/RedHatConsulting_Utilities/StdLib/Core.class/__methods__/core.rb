@@ -11,38 +11,81 @@ module RedHatConsulting_Utilities
       end
 
       def log(level, msg, update_message = false)
+        miq_request = get_request rescue nil
         @handle.log(level, "#{msg}")
-        @task.message = msg if @task && (update_message || level == 'error')
+        miq_request.user_message = msg if miq_request && (update_message || level.to_s == 'error')
       end
 
       def dump_thing(thing)
-        thing.attributes.sort.each { |k, v|
+        log(:info, "Begin @handle.#{thing}.attributes")
+        @handle.send(thing).attributes.sort.each { |k, v|
           log(:info, "\t Attribute: #{k} = #{v}")
         }
+        log(:info, "End @handle.#{thing}.attributes")
+        log(:info, "")
       end
 
       def dump_root()
-        log(:info, "Begin @handle.root.attributes")
-        dump_thing(@handle.root)
-        log(:info, "End @handle.root.attributes")
-        log(:info, "")
+        dump_thing('root')
+      end
+
+      def dump_object()
+        dump_thing('object')
+      end
+
+      def dump_all()
+        %w(root object parent).each do |thing|
+          dump_thing(thing) if @handle.send(thing) rescue nil
+        end
+
+      end
+
+      def error(msg)
+        @handle.log(:error, msg)
+        @handle.root['ae_result'] = 'error'
+        @handle.root['ae_reason'] = msg.to_s
+        exit MIQ_STOP
       end
 
       def get_provider(provider_id = nil)
         unless provider_id.nil?
-          $evm.root.attributes.detect { |k, v| provider_id = v if k.end_with?('provider_id') } rescue nil
+          @handle.root.attributes.detect { |k, v| provider_id = v if k.end_with?('provider_id') } rescue nil
         end
-        provider = $evm.vmdb(:ManageIQ_Providers_Amazon_CloudManager).find_by_id(provider_id)
+        provider = @handle.vmdb(:ManageIQ_Providers_Amazon_CloudManager).find_by_id(provider_id)
         log(:info, "Found provider: #{provider.name} via provider_id: #{provider.id}") if provider
 
         # set to true to default to the fist amazon provider
         use_default = true
         unless provider
           # default the provider to first openstack provider
-          provider = $evm.vmdb(:ManageIQ_Providers_Amazon_CloudManager).first if use_default
+          provider = @handle.vmdb(:ManageIQ_Providers_Amazon_CloudManager).first if use_default
           log(:info, "Found amazon: #{provider.name} via default method") if provider && use_default
         end
         provider ? (return provider) : (return nil)
+      end
+
+      def set_complex_state_var(name, value)
+        @handle.set_state_var(name.to_sym, JSON.generate(value))
+      end
+
+      def get_complex_state_var(name)
+        JSON.parse(@handle.get_state_var(name.to_sym))
+      end
+
+      # Useful in the rescue of service provisioning methods.
+      # rescue => err
+      #   handle_service_error(err)
+      # end
+      def handle_service_error(err)
+        log(:error, "[#{err}]\n#{err.backtrace.join("\n")}")
+        task = get_stp_task
+        miq_request = task.miq_request unless task.nil?
+        current_state = @handle.root['ae_state']
+        current_state ||= @handle.current_method
+        miq_request.user_message = "#{current_state} failed #{err}" unless miq_request.nil?
+        task['status'] = 'Error' if task
+        task.finished("#{err}") if task
+        exit MIQ_ABORT
       end
 
       def get_stp_task
