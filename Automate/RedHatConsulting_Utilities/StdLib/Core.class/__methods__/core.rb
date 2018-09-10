@@ -161,6 +161,35 @@ module RedHatConsulting_Utilities
         param_value
       end
 
+      def get_user
+        user_search = @handle.root['dialog_userid'] || @handle.root['dialog_evm_owner_id']
+        user = @handle.vmdb('user').find_by_id(user_search) || @handle.vmdb('user').find_by_userid(user_search) ||
+          @handle.root['user']
+        user
+      end
+
+      def get_current_group_rbac_array
+        rbac_array = []
+        unless @user.current_group.filters.blank?
+          @user.current_group.filters['managed'].flatten.each do |filter|
+            next unless /(?<category>\w*)\/(?<tag>\w*)$/i =~ filter
+            rbac_array << { category => tag }
+          end
+        end
+        log(:info, "@user: #{@user.userid} RBAC filters: #{rbac_array}")
+        rbac_array
+      end
+
+      def object_eligible?(obj)
+        return false if obj.archived || obj.orphaned
+        @rbac_array.each do |rbac_hash|
+          rbac_hash.each do |rbac_category, rbac_tags|
+            Array.wrap(rbac_tags).each { |rbac_tag_entry| return false unless obj.tagged_with?(rbac_category, rbac_tag_entry) }
+          end
+          true
+        end
+      end
+
     end
   end
 end
