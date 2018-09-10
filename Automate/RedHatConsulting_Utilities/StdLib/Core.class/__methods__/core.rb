@@ -125,6 +125,42 @@ module RedHatConsulting_Utilities
         log(:info, "extra_vars updated: #{service.job_options[:extra_vars].inspect}")
       end
 
+      # There are many ways to attempt to pass parameters in Automate.
+      # This function checks all of them in priorty order as well as checking for symbol or string.
+      #
+      # Order:
+      #   1. Inputs
+      #   2. Current
+      #   3. Object
+      #   4. Root
+      #   5. State
+      #
+      # @return Value for the given parameter or nil if none is found
+      def get_param(param)
+        # check if inputs has been set for given param
+        param_value ||= @handle.inputs[param.to_sym]
+        param_value ||= @handle.inputs[param.to_s]
+
+        # else check if current has been set for given param
+        param_value ||= @handle.current[param.to_sym]
+        param_value ||= @handle.current[param.to_s]
+
+        # else check if current has been set for given param
+        param_value ||= @handle.object[param.to_sym]
+        param_value ||= @handle.object[param.to_s]
+
+        # else check if param on root has been set for given param
+        param_value ||= @handle.root[param.to_sym]
+        param_value ||= @handle.root[param.to_s]
+
+        # check if state has been set for given param
+        param_value ||= @handle.get_state_var(param.to_sym)
+        param_value ||= @handle.get_state_var(param.to_s)
+
+        log(:info, "{ '#{param}' => '#{param_value}' }") if @DEBUG
+        param_value
+      end
+
     end
   end
 end
