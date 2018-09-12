@@ -42,8 +42,12 @@ module RedHatConsulting_Utilities
       #
       # @param root_attribute Attribute on $evm.root to log all of the attributes for
       def dump_root_attribute(root_attribute)
-        log(:info, "@handle.root['#{root_attribute}'].attributes => {")
-        @handle.root[root_attribute].attributes.sort.each { |k, v| log(:info, "\t#{k} => #{v}") }
+        dump_thing_attribute(@handle.root, '@handle.root', root_attribute)
+      end
+
+      def dump_thing_attribute(thing, thing_name, attribute)
+        log(:info, "#{thing_name}['#{attribute}'].attributes => {")
+        thing[attribute].attributes.sort.each { |k, v| log(:info, "\t#{k} => #{v.inspect}") }
         log(:info, '}')
       end
 
