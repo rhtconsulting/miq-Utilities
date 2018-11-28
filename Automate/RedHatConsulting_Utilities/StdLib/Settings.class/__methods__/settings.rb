@@ -28,9 +28,8 @@ module RedHatConsulting_Utilities
         SETTINGS = {
             global: {
                 network_lookup_keys: %w(environment), #orderd list of CF tag names to use to lookup vlan names, _ separated
-                groups_can_order_for: %w(EvmGroup-super_administrator), #list of groups whos memebers can order services on behalf of others
+                groups_can_order_for: %w(EvmGroup-super_administrator), #list of groups whose members can order services on behalf of others
                 vm_auto_start_suppress: true,
-                dns_domain: 'CORP.com',
             },
             default: {
                 # network/vlan/dvs names for the providers
