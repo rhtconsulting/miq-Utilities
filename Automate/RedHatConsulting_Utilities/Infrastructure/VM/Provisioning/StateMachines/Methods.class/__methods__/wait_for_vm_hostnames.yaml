@@ -1,0 +1,15 @@
+---
+object_type: method
+version: 1.0
+object:
+  attributes:
+    name: wait_for_vm_hostnames
+    display_name: WaitForVMIHostNames
+    description: 
+    scope: instance
+    language: ruby
+    location: inline
+    embedded_methods:
+    - "/StdLib/Core/Core"
+    options: {}
+  inputs: []

@@ -47,7 +47,11 @@ module RedHatConsulting_Utilities
 
       def dump_thing_attribute(thing, thing_name, attribute)
         log(:info, "#{thing_name}['#{attribute}'].attributes => {")
-        thing[attribute].attributes.sort.each { |k, v| log(:info, "\t#{k} => #{v.inspect}") }
+        if thing[attribute].attributes.try(:sort)
+          thing[attribute].attributes.sort.each { |k, v| log(:info, "\t#{k} => #{v.inspect}") }
+        else
+          log(:info, '<un-dumpable object>')
+        end
         log(:info, '}')
       end
 
@@ -169,7 +173,6 @@ module RedHatConsulting_Utilities
         param_value ||= @handle.get_state_var(param.to_sym)
         param_value ||= @handle.get_state_var(param.to_s)
 
-        log(:info, "{ '#{param}' => '#{param_value}' }") if @DEBUG
         param_value
       end
 
@@ -201,6 +204,75 @@ module RedHatConsulting_Utilities
           true
         end
       end
+
+      # Perform a method retry for the given reason
+      #
+      # @param seconds Number of seconds to wait before next retry
+      # @param reason  Reason for the retry
+      def automate_retry(seconds, reason)
+        $evm.root['ae_result'] = 'retry'
+        $evm.root['ae_retry_interval'] = "#{seconds.to_i}.seconds"
+        $evm.root['ae_reason'] = reason
+
+        $evm.log(:info, "Retrying #{@method} after #{seconds} seconds, because '#{reason}'") if @DEBUG
+        exit MIQ_OK
+      end
+      
+      # Function for getting the current VM and associated options based on the vmdb_object_type.
+      #
+      # Supported vmdb_object_types
+      #   * miq_provision
+      #   * vm
+      #   * automation_task
+      #
+      # @return vm,options
+      def get_vm_and_options()
+        @handle.log(:info, "@handle.root['vmdb_object_type'] => '#{@handle.root['vmdb_object_type']}'.")
+        case @handle.root['vmdb_object_type']
+          when 'miq_provision'
+            # get root object
+            miq_provision =  @handle.root['miq_provision']
+
+            # get VM
+            vm = miq_provision.vm
+
+            # get options
+            options = miq_provision.options
+            #merge the ws_values, dialog, top level options into one list to make it easier to search
+            options = options.merge(options[:ws_values]) if options[:ws_values]
+            options = options.merge(options[:dialog])    if options[:dialog]
+          when 'vm'
+            # get root objet & VM
+            vm = get_param(:vm)
+
+            # get options
+            options =  @handle.root.attributes
+            #merge the ws_values, dialog, top level options into one list to make it easier to search
+            options = options.merge(options[:ws_values]) if options[:ws_values]
+            options = options.merge(options[:dialog])    if options[:dialog]
+          when 'automation_task'
+            # get root objet
+            automation_task =  @handle.root['automation_task']
+
+            # get VM
+            vm  = get_param(:vm)
+
+            # get options
+            options = get_param(:options)
+            options = JSON.load(options)     if options && options.class == String
+            options = options.symbolize_keys if options
+            #merge the ws_values, dialog, top level options into one list to make it easier to search
+            options = options.merge(options[:ws_values]) if options[:ws_values]
+            options = options.merge(options[:dialog])    if options[:dialog]
+          else
+            error("Can not handle vmdb_object_type: #{@handle.root['vmdb_object_type']}")
+          end
+
+          # standerdize the option keys
+          options = options.symbolize_keys()
+
+          return vm,options
+        end
 
     end
   end
