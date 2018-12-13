@@ -37,9 +37,9 @@ module RedHatConsulting_Utilities
                 network_vmware: 'VM Network',
                 network_redhat: '<Template>',
 
-                retirement: 30.days.to_i,
-                retirement_warn: 14.days.to_i,
-                retirement_max_extensions: 3,
+                # retirement: 30.days.to_i,
+                # retirement_warn: 14.days.to_i,
+                # retirement_max_extensions: 3,
             },
             r901: {
                 network_vmware: 'dvs_0810_INF_VMS_PRD_HFLEX',
@@ -63,17 +63,21 @@ module RedHatConsulting_Utilities
         #   The key to fetch from the selected region, or default if the key is not found in the region
         # default:
         #   if set, the default value to return if a key is not found (suppresses all errors)
-        def get_setting(region, key, default)
+        def get_setting(region, key, default = nil)
           region = ('r' + region.to_s).to_sym unless region == :global
           key = key.to_sym
           begin
-            raise(KeyError, "region [#{region}] does not exist in settings hash") unless SETTINGS.key?(region)
+            raise(KeyError, "region [#{region}] does not exist in settings hash and no default provided") unless SETTINGS.key?(region)
             return SETTINGS[region][key] if SETTINGS[region].key?(key)
-            raise(KeyError, "key [#{key}] does not exist in region [#{region}] or defaults settings hash") unless SETTINGS[:default].key?(key)
-          rescue KeyError
-            return default
+            raise(KeyError, "key [#{key}] does not exist in region [#{region}] or defaults settings hash, and no default provided") unless SETTINGS[:default].key?(key)
+            return SETTINGS[:default][key]
+          rescue KeyError => e
+            if default.nil?
+              raise e
+            else
+              return default
+            end
           end
-          return SETTINGS[:default][key]
         end
 
       end
@@ -94,6 +98,12 @@ end
 # x = settings.get_setting(@region, 'infoblox_url')
 # puts x
 #
-# @region = 901
 # x = settings.get_setting(@region, 'custom_obscure_setting', {a: 'b'})
 # puts x
+#
+# begin
+#   x = settings.get_setting(@region, 'custom_obscure_setting')
+#   puts x
+# rescue KeyError => e
+#   puts "supposed to fail. All is OK: [#{e}]"
+# end
