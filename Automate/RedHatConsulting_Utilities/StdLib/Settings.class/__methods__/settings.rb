@@ -37,9 +37,9 @@ module RedHatConsulting_Utilities
                 network_vmware: 'VM Network',
                 network_redhat: '<Template>',
 
-                # retirement: 30.days.to_i,
-                # retirement_warn: 14.days.to_i,
-                # retirement_max_extensions: 3,
+                retirement: 30.days.to_i,
+                retirement_warn: 14.days.to_i,
+                retirement_max_extensions: 3,
             },
             r901: {
                 network_vmware: 'dvs_0810_INF_VMS_PRD_HFLEX',
