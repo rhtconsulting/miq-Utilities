@@ -7,7 +7,7 @@
 #
 #   We are overriding the default job launch method becuase 
 #   of problems when the code encounters symbols instead of 
-#   extra vars. 
+#   extra vars.
 #
 #   Related Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1647192
 #
