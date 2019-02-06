@@ -12,11 +12,12 @@ module RedHatConsulting_Utilities
         module Email
           class MIQProvision_Update
             include RedHatConsulting_Utilities::StdLib::Core
-            PROVISIONING_TELEMETRY_PREFIX = "Provisioning_Telemetry:"
+            PROVISIONING_TELEMETRY_PREFIX = "Provisioning_Telemetry"
 
             def initialize(handle = $evm)
               @handle = handle
-              @DEBUG = false
+              @DEBUG = true
+              dump_root if @DEBUG
             end
 
             def main
@@ -58,9 +59,9 @@ module RedHatConsulting_Utilities
             end
 
 
-# Determine the CFME/ManageIQ hostname
-#
-# @return CFME/ManageIQ hostname
+            # Determine the CFME/ManageIQ hostname
+            #
+            # @return CFME/ManageIQ hostname
             def determine_cfme_hostname()
               cfme_hostname = get_param(:cfme_hostname)
               cfme_hostname ||= @handle.object['appliance']
@@ -70,11 +71,11 @@ module RedHatConsulting_Utilities
               return cfme_hostname
             end
 
-# Determine the email address to send the email from
-#
-# @param cfme_hostname CFME/ManageIQ hostname the email is coming from
-#
-# @return email address to send the email from
+            # Determine the email address to send the email from
+            #
+            # @param cfme_hostname CFME/ManageIQ hostname the email is coming from
+            #
+            # @return email address to send the email from
             def determine_from_email_address(cfme_hostname)
               from_email_address = get_param(:from_email_address)
               from_email_address ||= "cfme@#{cfme_hostname}"
@@ -83,11 +84,11 @@ module RedHatConsulting_Utilities
               return from_email_address
             end
 
-# Determin the email addresses to send the email to
-#
-# @param prov miq_provision to determine the to email addresses for
-#
-# @return array of email addresses to send the email to
+            # Determine the email addresses to send the email to
+            #
+            # @param prov miq_provision to determine the to email addresses for
+            #
+            # @return array of email addresses to send the email to
             def determine_to_email_addresses(prov)
               to_email_addresses = []
 
@@ -120,32 +121,32 @@ module RedHatConsulting_Utilities
               return to_email_addresses
             end
 
-# Sends an email about the VM that was just provisioned:
-#
-# EXAMPLE:
-# -----------
-#
-#  VM
-#  |------------------------------------|-----------------------|
-#  | Name								| test000.example.com	|
-#  | IPS								| 10.0.0.2				|
-#  | Service							| My Service			| # OPTIONAL
-#  | State								| Provisioned			|
-#  | Status								| Ok					|
-#  | Step								| checkprovisioned		| # OPTIONAL
-#  | Message                            | Bla bal bal			|
-#  | CloudForms Provisioning Request ID	| 10000000000373		|
-#  |------------------------------------|-----------------------|
-#
-#  VM Provisioning Statistics
-#  |----------------------------------------------------|---------------------------|
-#  | Telemetry: Provisioning: Duration: VM Provisioning	| 00:15:12					|
-#  | Telemetry: Provisioning: Duration: VM Clone		| 00:02:01					|
-#  | Telemetry: Provisioning: Time: Request Completed	| 2017-12-10 20:30:24 -0500 |
-#  | Telemetry: Provisioning: Time: Request Created		| 2017-12-10 20:13:28 -0500 |
-#  |----------------------------------------------------|---------------------------|
-#
-# -----------
+            # Sends an email about the VM that was just provisioned:
+            #
+            # EXAMPLE:
+            # -----------
+            #
+            #  VM
+            #  |------------------------------------|-----------------------|
+            #  | Name								| test000.example.com	|
+            #  | IPS								| 10.0.0.2				|
+            #  | Service							| My Service			| # OPTIONAL
+            #  | State								| Provisioned			|
+            #  | Status								| Ok					|
+            #  | Step								| checkprovisioned		| # OPTIONAL
+            #  | Message                            | Bla bal bal			|
+            #  | CloudForms Provisioning Request ID	| 10000000000373		|
+            #  |------------------------------------|-----------------------|
+            #
+            #  VM Provisioning Statistics
+            #  |----------------------------------------------------|---------------------------|
+            #  | Telemetry: Provisioning: Duration: VM Provisioning	| 00:15:12					|
+            #  | Telemetry: Provisioning: Duration: VM Clone		| 00:02:01					|
+            #  | Telemetry: Provisioning: Time: Request Completed	| 2017-12-10 20:30:24 -0500 |
+            #  | Telemetry: Provisioning: Time: Request Created		| 2017-12-10 20:13:28 -0500 |
+            #  |----------------------------------------------------|---------------------------|
+            #
+            # -----------
             def send_vm_provision_update_email(prov, to, from, update_message, vm_current_provision_ae_result, cfme_hostname)
               $evm.log('info', "START: send_vm_provision_update_email") if @DEBUG
 
