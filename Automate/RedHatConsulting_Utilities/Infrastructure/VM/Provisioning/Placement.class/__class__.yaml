@@ -100,7 +100,7 @@ object:
       owner: 
       default_value: 
       substitute: true
-      message: create
+      message: "*"
       visibility: 
       collect: 
       scope: 
@@ -120,7 +120,7 @@ object:
       owner: 
       default_value: 
       substitute: true
-      message: create
+      message: "*"
       visibility: 
       collect: 
       scope: 
