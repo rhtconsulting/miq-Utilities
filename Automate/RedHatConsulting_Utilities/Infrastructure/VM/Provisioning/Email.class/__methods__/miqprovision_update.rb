@@ -16,17 +16,14 @@ module RedHatConsulting_Utilities
 
             def initialize(handle = $evm)
               @handle = handle
-              @DEBUG = false
+              @DEBUG = true
               dump_root if @DEBUG
             end
 
             def main
               # get the miq_provision task
-              prov = @handle.root['miq_provision']
-              log(:info, "Provision:<#{prov.id}> Request:<#{prov.miq_provision_request.id}> Type:<#{prov.type}>") if @DEBUG
-              log(:info, "prov.attributes => {") if @DEBUG
-              prov.attributes.sort.each {|k, v| log(:info, "\t#{k} => #{v}")} if @DEBUG
-              log(:info, "}") if @DEBUG
+              prov = @handle.root['miq_provision_request'] || @handle.root['miq_provision']
+
               error("miq_provision object not provided") unless prov
 
               # determine to email addresses
