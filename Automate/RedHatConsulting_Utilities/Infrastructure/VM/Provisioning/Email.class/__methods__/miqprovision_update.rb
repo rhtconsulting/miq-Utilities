@@ -222,6 +222,13 @@ module RedHatConsulting_Utilities
                 end
                 body += "</table>"
               end
+              
+              # Send email
+              @handle.log("info", "Sending email to <#{to}> from <#{from}> subject: <#{subject}>") if @DEBUG
+              @handle.log("info", "Sending email body: #{body}")                                   if @DEBUG
+              @handle.execute(:send_email, to, from, subject, body)
+
+              @handle.log('info', "END: send_vm_provision_update_email") if @DEBUG
 
             end
 
