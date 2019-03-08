@@ -74,8 +74,16 @@ module Automate
                     #       This very likely almost certainly does not work, but is left here as a reminder for "someday"
                     prov.set_option(:placement_availability_zone, provisioning_network.availability_zone_id)
                   else
-                    @handle.log(:info, "prov.set_vlan: provisioning_network_name => #{provisioning_network_name}") if DEBUG
-                    prov.set_vlan(provisioning_network_name)
+                    # if provider is RHV and CFME version 5.9 or above use VLAN profile ID
+                    # else use vlan name
+                    if (template.ext_management_system.type =~ /Redhat/) && (Gem::Version.new(@handle.root['miq_server'].version) >= Gem::Version.new('5.9'))
+                      vnic_profile_id = Automation::Infrastructure::VM::RedHat::Utils.new(template.ext_management_system).vnic_profile_id(provisioning_network_name)
+                      @handle.log(:info, "prov.set_vlan: vnic_profile_id => #{vnic_profile_id}") if DEBUG
+                      prov.set_vlan(vnic_profile_id)
+                    else
+                      @handle.log(:info, "prov.set_vlan: provisioning_network_name => #{provisioning_network_name}") if DEBUG
+                      prov.set_vlan(provisioning_network_name)
+                    end
                     @handle.log(:info, "Provisioning object <:vlan> updated with <#{prov.get_option(:vlan)}>")
                   end
                   prov.set_option(:network_adapters, 1)
