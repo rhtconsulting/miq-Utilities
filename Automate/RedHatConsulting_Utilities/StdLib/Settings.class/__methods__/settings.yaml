@@ -10,6 +10,6 @@ object:
     language: ruby
     location: inline
     embedded_methods:
-    - "/RedHatConsulting_Utilities-working/StdLib/Settings/settingsstore"
+    - "/RedHatConsulting_Utilities/StdLib/Settings/settingsstore"
     options: {}
   inputs: []
