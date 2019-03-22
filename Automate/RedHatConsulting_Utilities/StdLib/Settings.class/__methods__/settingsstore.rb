@@ -33,18 +33,6 @@ module RedHatConsulting_Utilities
 
         SETTINGS = {
           global: {
-            # orderd list of CF tag names to use to lookup vlan names, _ separated
-            # This helps build the setting name for VLAN lookups. Format is as:
-            #    network_<template vendor>_key1_key2_..._keyN
-            # consider the following examples
-            #
-            # vmware templates:
-            # network_lookup_keys: %w(location environment)
-            #         ---> network_vmware_NYC_DEV OR network_vmware_PARIS_QA
-            # network_lookup_keys: %w(servicelevel location environment)
-            #         ---> network_vmware_GOLD_NYC_DEV OR network_vmware_BRONZE_PARIS_QA
-            #
-            network_lookup_keys: %w(environment),
 
             # list of groups whose members can order services on behalf of others
             groups_can_order_for: %w(EvmGroup-super_administrator),
@@ -52,13 +40,7 @@ module RedHatConsulting_Utilities
             vm_auto_start_suppress: true,
           },
           default: {
-            # network/vlan/dvs names for the providers
-            # these must exist, but can (likely will) change later in the process
-            network_vmware: 'VM Network',
-            network_redhat: '<Template>',
-            retirement: 30.days.to_i,
-            retirement_warn: 14.days.to_i,
-            retirement_max_extensions: 3,
+
 
             #############################
             # Options for VM placement logic (for vmware_drs_cluster_best_fit_with_scope)
