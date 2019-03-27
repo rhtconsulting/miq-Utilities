@@ -56,7 +56,10 @@ module RedHatConsulting_Utilities
           region = ('r' + region.to_s).to_sym unless region == :global
           key = key.to_sym
           begin
-            raise(KeyError, "region [#{region}] does not exist in settings hash and no default provided") unless @real_settings.key?(region)
+            unless @real_settings.key?(region)
+              raise(KeyError, "region [#{region}] does not exist in settings hash and no default provided for [#{key}]") unless @real_settings[:default].key?(key)
+              return @real_settings[:default][key]
+            end
             return @real_settings[region][key] if @real_settings[region].key?(key)
             raise(KeyError, "key [#{key}] does not exist in region [#{region}] or defaults settings hash, and no default provided") unless @real_settings[:default].key?(key)
             return @real_settings[:default][key]
@@ -113,7 +116,9 @@ end
 #
 #       default: {
 #         network_redhat: '<VM Network>',
-#         retirement_max_extensions: 17
+#         retirement_max_extensions: 17,
+#
+#         in_default_not_region: 'IM FROM DEFAULT',
 #       }
 #     }.freeze
 #   end
@@ -186,13 +191,18 @@ end
 #
 # x = settings.get_effective_settings()
 # puts "effective settings: #{x}"
-#
+
 # begin
 #   x = settings.get_setting(@region, 'custom_obscure_setting')
 #   puts x
 # rescue KeyError => e
 #   puts "supposed to fail. All is OK: [#{e}]"
 # end
+
+#
+# x = settings.get_setting(34, 'in_default_not_region')
+# puts "XXXXXXXXXX"
+# puts "in_default_not_region: [#{x}]"
 
 #TEST TEST TEST TEST END
 

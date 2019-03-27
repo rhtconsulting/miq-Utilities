@@ -196,11 +196,23 @@ module RedHatConsulting_Utilities
         rbac_array
       end
 
+      # Checks if the object is eligible for use, based on @rbac_array and if not archived & not orphaned
+      # @param obj MIQ taggable object to verify against RBAC
       def object_eligible?(obj)
-        return false if obj.archived || obj.orphaned
-        @rbac_array.each do |rbac_hash|
-          rbac_hash.each do |rbac_category, rbac_tags|
-            Array.wrap(rbac_tags).each { |rbac_tag_entry| return false unless obj.tagged_with?(rbac_category, rbac_tag_entry) }
+        return false if (obj.respond_to?(:archived) && obj.archived) || (obj.respond_to?(:orphaned) && obj.orphaned)
+        object_matches_tag_filter?(obj, @rbac_array)
+      end
+
+      # Checks the given object matches by tag against the provided tag_filter
+      #
+      # @param obj MIQ taggable object to check
+      # @param hash tag_filter hash in the format of [ {'cat1'=>'val1'}, {'cat1'=> 'val2'}, {'cat2' =>'val3'}]
+      def object_matches_tag_filter?(obj, tag_filter)
+        tag_filter.each do |filter_hash|
+          filter_hash.each do |filter_category, filter_tags|
+            Array.wrap(filter_tags).each do |filter_tag_entry|
+              return false unless obj.tagged_with?(filter_category.to_s, filter_tag_entry)
+            end
           end
           true
         end
@@ -218,7 +230,7 @@ module RedHatConsulting_Utilities
         $evm.log(:info, "Retrying #{@method} after #{seconds} seconds, because '#{reason}'") if @DEBUG
         exit MIQ_OK
       end
-      
+
       # Function for getting the current VM and associated options based on the vmdb_object_type.
       #
       # Supported vmdb_object_types
@@ -230,51 +242,61 @@ module RedHatConsulting_Utilities
       def get_vm_and_options()
         @handle.log(:info, "@handle.root['vmdb_object_type'] => '#{@handle.root['vmdb_object_type']}'.")
         case @handle.root['vmdb_object_type']
-          when 'miq_provision'
-            # get root object
-            miq_provision =  @handle.root['miq_provision']
+        when 'miq_provision'
+          # get root object
+          miq_provision = @handle.root['miq_provision']
 
-            # get VM
-            vm = miq_provision.vm
+          # get VM
+          vm = miq_provision.vm
 
-            # get options
-            options = miq_provision.options
-            #merge the ws_values, dialog, top level options into one list to make it easier to search
-            options = options.merge(options[:ws_values]) if options[:ws_values]
-            options = options.merge(options[:dialog])    if options[:dialog]
-          when 'vm'
-            # get root objet & VM
-            vm = get_param(:vm)
+          # get options
+          options = miq_provision.options
+          #merge the ws_values, dialog, top level options into one list to make it easier to search
+          options = options.merge(options[:ws_values]) if options[:ws_values]
+          options = options.merge(options[:dialog]) if options[:dialog]
+        when 'vm'
+          # get root objet & VM
+          vm = get_param(:vm)
 
-            # get options
-            options =  @handle.root.attributes
-            #merge the ws_values, dialog, top level options into one list to make it easier to search
-            options = options.merge(options[:ws_values]) if options[:ws_values]
-            options = options.merge(options[:dialog])    if options[:dialog]
-          when 'automation_task'
-            # get root objet
-            automation_task =  @handle.root['automation_task']
+          # get options
+          options = @handle.root.attributes
+          #merge the ws_values, dialog, top level options into one list to make it easier to search
+          options = options.merge(options[:ws_values]) if options[:ws_values]
+          options = options.merge(options[:dialog]) if options[:dialog]
+        when 'automation_task'
+          # get root objet
+          automation_task = @handle.root['automation_task']
 
-            # get VM
-            vm  = get_param(:vm)
+          # get VM
+          vm = get_param(:vm)
 
-            # get options
-            options = get_param(:options)
-            options = JSON.load(options)     if options && options.class == String
-            options = options.symbolize_keys if options
-            #merge the ws_values, dialog, top level options into one list to make it easier to search
-            options = options.merge(options[:ws_values]) if options[:ws_values]
-            options = options.merge(options[:dialog])    if options[:dialog]
-          else
-            error("Can not handle vmdb_object_type: #{@handle.root['vmdb_object_type']}")
-          end
-
-          # standerdize the option keys
-          options = options.symbolize_keys()
-
-          return vm,options
+          # get options
+          options = get_param(:options)
+          options = JSON.load(options) if options && options.class == String
+          options = options.symbolize_keys if options
+          #merge the ws_values, dialog, top level options into one list to make it easier to search
+          options = options.merge(options[:ws_values]) if options[:ws_values]
+          options = options.merge(options[:dialog]) if options[:dialog]
+        else
+          error("Can not handle vmdb_object_type: #{@handle.root['vmdb_object_type']}")
         end
 
-    end
+        # standerdize the option keys
+        options = options.symbolize_keys()
+
+        return vm, options
+      end
+
+      # Converts duration of seconds to HH:MM:SS
+      #
+      # @param seconds Number of seconds passed
+      #
+      # @return duration converted to HH:MM:SS
+      def seconds_to_time(seconds)
+        seconds = seconds.round
+        [seconds / 3600, seconds / 60 % 60, seconds % 60].map { |t| t.to_s.rjust(2, '0') }.join(':')
+      end
+
+    end #module Core
   end
 end

@@ -43,13 +43,13 @@ module RedHatConsulting_Utilities
 
 
             #############################
-            # Options for VM placement logic (for vmware_drs_cluster_best_fit_with_scope)
+            # Options for VM placement logic (for vmware_drs_cluster_best_fit_with_scope & redhat_best_placement_with_scope)
             #
             # @TODO: figure out how to have placement_filters here (implies eval(!))
-            # @TODO: Reconcile RHV placement logic & use same config
+            # @TODO: Reconcile RHV placement logic
             #
             # storage_max_vms: 0 - ignore
-            #                  int - skip datastores with >x VMs
+            #                  >0 - skip datastores with >x VMs
             #
             # storage_max_pct_used: 100 (default)
             #                       0-100  - skip datastores with >x % used.
