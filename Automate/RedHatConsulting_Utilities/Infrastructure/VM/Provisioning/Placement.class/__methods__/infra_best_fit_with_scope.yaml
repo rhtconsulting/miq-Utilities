@@ -3,7 +3,7 @@ object_type: method
 version: 1.0
 object:
   attributes:
-    name: infra_best_placement_with_scope
+    name: infra_best_fit_with_scope
     display_name:
     description:
     scope: instance
