@@ -64,11 +64,11 @@ def resizeDisk(vm, disk_number, new_disk_size_in_kb)
       currentDiskIndex = 0
       devices.each do | dev |
         next if dev.xsiType != "VirtualDisk"
-        if diskIndex == currentDiskIndex
+        unit = dev["unitNumber"].to_i
+        if diskIndex == unit
           matchedDev = dev
           break
         end
-        currentDiskIndex += 1
       end
       raise "resize_disk: disk #{diskIndex} not found" unless matchedDev
       $log.info("resize_disk: resizing using matched device at #{diskIndex}")
@@ -146,7 +146,7 @@ begin
         $evm.log(:warn, "Requested disk size is: #{disk_size_kb} KiB which is smaller than existing size of #{current_disk_kb} KiB. Shrinking unsupported")
         exit MIQ_WARN
       else
-        disk_number -= 1 # Subtract 1 from the disk_number since VMware starts at 0 and CFME start at 1
+        #disk_number -= 1 # Subtract 1 from the disk_number since VMware starts at 0 and CFME start at 1
         resizeDisk(vm, disk_number, disk_size_kb)
       end
     rescue => e
