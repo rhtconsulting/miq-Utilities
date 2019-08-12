@@ -9,12 +9,12 @@ module RedHatConsulting_Utilities
     module Infrastructure
       module VM
         module Provisioning
-          class AddDVMToService
+          class AddVMToService
             include RedHatConsulting_Utilities::StdLib::Core
 
             def initialize(handle = $evm)
               @handle = handle
-              @DEBUG = true
+              @DEBUG = false
             end
 
             def main
@@ -24,7 +24,7 @@ module RedHatConsulting_Utilities
               @handle.log(:info, "Provision:<#{prov.id}> Request:<#{prov.miq_provision_request.id}> Type:<#{prov.type}>")
               @handle.log(:info, "@handle.root['miq_provision'].attributes => {") if @DEBUG
               prov.attributes.sort.each { |k, v| @handle.log(:info, "\t#{k} => #{v}") } if @DEBUG
-              @handle.log(:info, "}") if @DEBUG
+              @handle.log(:info, '}') if @DEBUG
 
               # get the VM
               vm = prov.vm

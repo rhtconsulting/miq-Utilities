@@ -79,9 +79,11 @@ module RedHatConsulting_Utilities
           descendants = ObjectSpace.each_object(Class).select do |klass|
             klass < RedHatConsulting_Utilities::StdLib::Core::Settings
           end
+          $evm.log(:info, "settings descendants unsorted order: [#{descendants}]")
 
           # sort them by priority (reverse! 0 is highest)
-          descendants.sort { |a, b| b::PRIORITY <=> a::PRIORITY }
+          descendants.sort! { |a, b| a::PRIORITY <=> b::PRIORITY }
+          $evm.log(:info, "settings descendants   sorted order: [#{descendants}]")
 
           @real_settings = {}
           settings_from = []
@@ -167,7 +169,7 @@ end
 
 #TEST TEST TEST TEST BEGIN
 
-# require '/home/jwarnica/Projects/miq-Utilities/Automate/RedHatConsulting_Utilities/StdLib/Settings.class/__methods__/settingsstore.rb'
+# require '/home/jwarnica/RubymineProjects/miq-Utilities/Automate/RedHatConsulting_Utilities/StdLib/Settings.class/__methods__/settingsstore.rb'
 #
 #
 # settings = RedHatConsulting_Utilities::StdLib::Core::Settings.new()

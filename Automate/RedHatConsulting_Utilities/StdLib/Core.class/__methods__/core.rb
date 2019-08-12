@@ -203,7 +203,9 @@ module RedHatConsulting_Utilities
         object_matches_tag_filter?(obj, @rbac_array)
       end
 
-      # Checks the given object matches by tag against the provided tag_filter
+      # Checks the given object matches by tag against the provided tag_filter.
+      #
+      # This requires that the object has each tag value in each tag category to pass
       #
       # @param obj MIQ taggable object to check
       # @param hash tag_filter hash in the format of [ {'cat1'=>'val1'}, {'cat1'=> 'val2'}, {'cat2' =>'val3'}]
@@ -217,6 +219,26 @@ module RedHatConsulting_Utilities
           true
         end
       end
+
+      # Checks the given object matches by tag against the provided tag_filter
+      #
+      # This requires that the object has any at least one tag value in each tag category
+      #
+      # @param obj MIQ taggable object to check
+      # @param hash tag_filter hash in the format of [ {'cat1'=>'val1'}, {'cat1'=> 'val2'}, {'cat2' =>'val3'}]
+      def object_matches_any_tag_filter?(obj, tag_filter)
+        tag_filter.each do |filter_hash|
+          filter_hash.each do |filter_category, filter_tags|
+            category_ok = false
+            Array.wrap(filter_tags).each do |filter_tag_entry|
+              category_ok = true if obj.tagged_with?(filter_category.to_s, filter_tag_entry)
+            end
+            return false unless category_ok
+          end
+          true
+        end
+      end
+
 
       # Perform a method retry for the given reason
       #
