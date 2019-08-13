@@ -57,5 +57,5 @@ module RedHatConsulting_Utilities
 end
 
 if __FILE__ == $PROGRAM_NAME
-  RedHatConsulting_Utilities::Automate::Infrastructure::VM::Provisioning::AddDVMToService.new.main()
+  RedHatConsulting_Utilities::Automate::Infrastructure::VM::Provisioning::AddVMToService.new.main()
 end
