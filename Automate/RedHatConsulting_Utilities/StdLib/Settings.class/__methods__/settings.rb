@@ -57,11 +57,11 @@ module RedHatConsulting_Utilities
           key = key.to_sym
           begin
             unless @real_settings.key?(region)
-              raise(KeyError, "region [#{region}] does not exist in settings hash and no default provided for [#{key}]") unless @real_settings[:default].key?(key)
+              raise(KeyError, "region [#{region}] does not exist in settings hash and/or no default provided for [#{key}]") unless @real_settings[:default].key?(key)
               return @real_settings[:default][key]
             end
             return @real_settings[region][key] if @real_settings[region].key?(key)
-            raise(KeyError, "key [#{key}] does not exist in region [#{region}] or defaults settings hash, and no default provided") unless @real_settings[:default].key?(key)
+            raise(KeyError, "key [#{key}] does not exist in region [#{region}] or defaults settings hash, and/or no default provided") unless @real_settings[:default].key?(key)
             return @real_settings[:default][key]
           rescue KeyError => e
             raise e if default.nil?
