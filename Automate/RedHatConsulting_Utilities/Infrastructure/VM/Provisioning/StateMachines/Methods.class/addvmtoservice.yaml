@@ -9,4 +9,4 @@ object:
     description: 
   fields:
   - execute:
-      value: add_vm_to_service
+      common_meth1: add_vm_to_service
