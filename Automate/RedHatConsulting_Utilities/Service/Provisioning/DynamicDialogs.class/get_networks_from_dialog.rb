@@ -9,7 +9,7 @@
 # what was configured for the provisioning network, or vice versa
 #
 
-@DEBUG = true
+@DEBUG = false
 
 
 require 'yaml'
@@ -102,11 +102,7 @@ begin
     dialog_source_name = 'unknown'
   end
 
-  dialog_source = 'dialog_location'
-  dialog_source += '_'
-  dialog_source += destination_provider_index.to_s
-  dialog_source += '_'
-  dialog_source += dialog_source_name
+  dialog_source = "dialog_location_#{destination_provider_index.to_s}_#{dialog_source_name}"
 
   source_network = $evm.root[dialog_source]
 
