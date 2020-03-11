@@ -89,9 +89,11 @@ begin
   destination_provider_index = get_param(:destination_provider_index)
   network_purpose            = get_param(:network_purpose)
   required                   = get_param(:required)
+  values                     = {}
   $evm.log(:info, "destination_provider_index => #{destination_provider_index}") if @DEBUG
   $evm.log(:info, "network_purpose            => #{network_purpose}")            if @DEBUG
   $evm.log(:info, "required                   => #{required}")                   if @DEBUG
+
 
   case network_purpose
     when 'provisioning'
@@ -105,8 +107,9 @@ begin
   dialog_source = "dialog_location_#{destination_provider_index.to_s}_#{dialog_source_name}"
 
   source_network = $evm.root[dialog_source]
-
-  values = {source_network => source_network}
+  
+  # Only return values if a source_network is selected
+  values = {source_network => source_network} if !source_network.blank?
 
   return_dialog_element(false,true,values)
   
