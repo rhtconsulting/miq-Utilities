@@ -14,7 +14,7 @@ module RedHatConsulting_Utilities
             include RedHatConsulting_Utilities::StdLib::Core
             def initialize(handle = $evm)
               @handle = handle
-              @DEBUG = true
+              @DEBUG = false
             end
 
             def main
